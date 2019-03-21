@@ -29,6 +29,8 @@
     <key>labelsUseCB</key>
     <false/>
     <key>showOnlyNumbers</key>
-    <true/>
+    <false/>
+    <key>useBadgesForDock</key>
+    <false/>
 </dict>
 </plist>

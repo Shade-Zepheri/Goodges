@@ -3,6 +3,7 @@
     Goodbye badges, hello labels!
 
     Copyright (C) 2017 - faku99 <faku99dev@gmail.com>
+    Copyright (C) 2019 - NoisyFlake <u/NoisyFlake>
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -32,8 +33,10 @@
 #import <SpringBoard/SBIconLabelImage.h>
 #import <SpringBoard/SBIconLabelImageParameters.h>
 #import <SpringBoard/SBIconLabelView.h>
+#import <SpringBoard/SBIconLegibilityLabelView.h>
 #import <SpringBoard/SBIconView.h>
 #import <SpringBoard/SBIconViewMap.h>
+#import <SpringBoard/SBDockIconListView.h>
 
 #pragma mark - Static variables
 
@@ -63,8 +66,7 @@ static const GGPrefsManager *_prefs;
 
 #pragma mark - Subclasses implementation
 
-// We create a subclass of SBIconLabelImageParameters so we can modify values more
-// easily.
+// We create a subclass of SBIconLabelImageParameters so we can modify values more easily.
 %subclass GGIconLabelImageParameters : SBIconLabelImageParameters
 
 %property (nonatomic, assign) BOOL allowsBadging;
@@ -116,8 +118,7 @@ static const GGPrefsManager *_prefs;
     return ret;
 }
 
-// Would be great to know why do we have to set the return value to 'NO'. If we don't
-// do that, labels appear gray...
+// Would be great to know why do we have to set the return value to 'NO'. If we don't do that, labels appear gray...
 -(BOOL)colorspaceIsGrayscale {
     if(self.allowsBadging) {
         return NO;
@@ -217,7 +218,31 @@ static const GGPrefsManager *_prefs;
 
 #pragma mark - Hooks
 
+%hook SBDockIconListView
+
+// Move icons in the dock up to make space for the labels
+-(CGPoint)originForIconAtCoordinate:(SBIconCoordinate)arg1 {
+    if (![_prefs boolForKey:kUseBadgesForDock]) {
+        CGPoint point = %orig;
+        CGPoint newPoint = CGPointMake(point.x, point.y - 7);
+        return newPoint;
+    } else {
+        return %orig;
+    }
+}
+
+%end    // 'SBDockIconListView' hook
+
 %hook SBIconView
+
+// Don't hide labels in the dock
+-(void)setContentType:(unsigned long long)arg1 {
+    if (arg1 == 1 && ![_prefs boolForKey:kUseBadgesForDock]) {
+        %orig(0);
+    } else {
+        %orig;
+    }
+}
 
 // Set label parameters to what we want.
 -(SBIconLabelImageParameters *)_labelImageParameters {
@@ -234,31 +259,44 @@ static const GGPrefsManager *_prefs;
 }
 
 -(void)layoutSubviews {
+    // It's necessary to reload the label image every time the label is updated.
+    _UILegibilitySettings* settings = [self legibilitySettings];
+    SBIconLabelImageParameters *params = [self _labelImageParameters];
+    SBIconLabelView *labelView = MSHookIvar<SBIconLabelView *>(self, "_labelView");
+
+    if(labelView != nil) {
+
+        [labelView updateIconLabelWithSettings:settings imageParameters:params];
+        SBIconLabelImage *labelImage = [%c(SBIconLabelImage) _drawLabelImageForParameters:params];
+
+        if([labelView isKindOfClass:%c(SBIconLegibilityLabelView)]) {
+            [labelView setImage:labelImage];
+            [labelView.imageView setImage:labelImage];
+
+            CGRect frame = labelView.imageView.frame;
+            frame.size = labelImage.size;
+
+            [labelView.imageView setFrame:frame];
+        } else if ([labelView isKindOfClass:%c(SBIconSimpleLabelView)]) {
+            // SBIconSimpleLabelView (used for Dock Icons) is already a UIImageView, so no need to get imageView
+            [labelView setImage:labelImage];
+
+            CGRect frame = labelView.frame;
+            frame.size = labelImage.size;
+
+            [labelView setFrame:frame];
+        } else {
+            // Should only happen in future iOS versions if Apple changes the SBIconLabelView again
+            HBLogWarn(@"Unable to update icon label: unsupported SBIconLabelView class detected");
+        }
+
+    }
+
     SBIcon *icon = [self icon];
     NSInteger badgeValue = [icon badgeValue];
     BOOL allowsBadging = [[%c(SBIconController) sharedInstance] iconAllowsBadging:icon];
 
     BOOL labelHidden = [_prefs boolForKey:kHideAllLabels] && (badgeValue < 1 || !allowsBadging);
-
-    // It's necessary to reload the label image every time the label is updated.
-    SBIconLabelImageParameters *params = [self _labelImageParameters];
-    SBIconLabelView *labelView = MSHookIvar<SBIconLabelView *>(self, "_labelView");
-    if(labelView != nil) {
-        [labelView setImageParameters:params];
-    }
-
-    if(params != nil) {
-        SBIconLabelImage *labelImage = [%c(SBIconLabelImage) _drawLabelImageForParameters:params];
-        // We have to hook the labelView because the method [self labelView] only exists for iOS9 and higher.
-        [labelView setImage:labelImage];
-        [labelView.imageView setImage:labelImage];
-
-        CGRect frame = labelView.imageView.frame;
-        frame.size = labelImage.size;
-
-        [labelView.imageView setFrame:frame];
-    }
-
     [self setLabelHidden:labelHidden];
 
     %orig();
@@ -268,9 +306,10 @@ static const GGPrefsManager *_prefs;
 
     // Remove badges.
     UIView *accessoryView = MSHookIvar<UIView *>(self, "_accessoryView");
-    if(accessoryView && [accessoryView isKindOfClass:%c(SBIconBadgeView)] && [_prefs boolForKey:kHideBadges]) {
-        accessoryView.hidden = YES;
-    }
+    if(accessoryView && [accessoryView isKindOfClass:%c(SBIconBadgeView)] && [_prefs boolForKey:kHideBadges] &&
+        ([self location] != 3 || ![_prefs boolForKey:kUseBadgesForDock])) {
+            accessoryView.hidden = YES;
+        }
 
     if([_prefs boolForKey:kEnableShaking]) {
         // Crossfade view is not nil when the application is launching. If shaking icons is enabled,
@@ -288,11 +327,7 @@ static const GGPrefsManager *_prefs;
 %new
 -(void)shakeIcon {
     if(![[self.layer animationKeys] containsObject:@"SBIconPosition"]) {
-        [self.layer addAnimation:[%c(SBIconView) _jitterPositionAnimation] forKey:@"SBIconPosition"];
-    }
-
-    if(![[self.layer animationKeys] containsObject:@"SBIconTransform"]) {
-        [self.layer addAnimation:[%c(SBIconView) _jitterTransformAnimation] forKey:@"SBIconTransform"];
+        [self.layer addAnimation:[%c(SBIconView) _jitterRotationAnimation] forKey:@"SBIconPosition"];
     }
 }
 
@@ -342,7 +377,7 @@ static const GGPrefsManager *_prefs;
         [iconView removeAllIconAnimations];
     }
 
-    SBDockIconListView *dockView = [self dockListView];
+    SBIconListView *dockView = [self dockListView];
     icons = [dockView icons];
     map = [dockView viewMap];
 

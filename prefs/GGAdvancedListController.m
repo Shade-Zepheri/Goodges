@@ -27,7 +27,7 @@
         [manager removeItemAtPath:APP_SETTINGS error:nil];
         [manager removeItemAtPath:USER_SETTINGS error:nil];
 
-        [self performRespring];
+        [self respring];
     }];
     UIAlertAction *noAction = [UIAlertAction actionWithTitle:@"No" style:UIAlertActionStyleDefault handler:nil];
 

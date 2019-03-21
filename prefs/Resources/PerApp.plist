@@ -29,7 +29,7 @@
             <key>cell</key>
             <string>PSGroupCell</string>
             <key>label</key>
-            <string>Singular form</string>
+            <string>Singular Form</string>
         </dict>
         <dict>
             <key>cell</key>
@@ -46,7 +46,7 @@
             <key>cell</key>
             <string>PSGroupCell</string>
             <key>label</key>
-            <string>Plural form</string>
+            <string>Plural Form</string>
         </dict>
         <dict>
             <key>cell</key>

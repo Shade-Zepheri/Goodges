@@ -1,12 +1,11 @@
 #import <Social/Social.h>
+#import <spawn.h>
 
 #import "GGRootListController.h"
 
 @interface GGRootListController ()
 
-- (void)layoutLove;
 - (void)paypal;
-- (void)tweet;
 
 @end
 
@@ -19,7 +18,8 @@
     if(self) {
         _prefs = [NSClassFromString(@"GGPrefsManager") sharedManager];
 
-        [self layoutLove];
+        UIBarButtonItem *applyButton = [[UIBarButtonItem alloc] initWithTitle:@"Respring" style:UIBarButtonItemStylePlain target:self action:@selector(respring)];
+        self.navigationItem.rightBarButtonItem = applyButton;
     }
 
     return self;
@@ -33,8 +33,10 @@
 	return _specifiers;
 }
 
--(void)performRespring {
-    system("killall -9 backboardd");
+-(void)respring {
+    pid_t pid;
+    const char* args[] = {"killall", "-9", "backboardd", NULL};
+    posix_spawn(&pid, "/usr/bin/killall", NULL, NULL, (char* const*)args, NULL);
 }
 
 -(id)readPreferenceValue:(PSSpecifier *)specifier {
@@ -71,29 +73,56 @@
     [super _returnKeyPressed:keyboard];
 }
 
--(void)layoutLove {
-    UIImage *heartNorm = [UIImage imageNamed:@"images/heart" inBundle:self.bundle compatibleWithTraitCollection:nil];
-    UIImage *heartHigh = [UIImage imageNamed:@"images/heart_touched" inBundle:self.bundle compatibleWithTraitCollection:nil];
-
-    UIButton *shareButton = [UIButton buttonWithType:UIButtonTypeCustom];
-    [shareButton setFrame:CGRectMake(0, 13, 22, 22)];
-    [shareButton setImage:heartNorm forState:UIControlStateNormal];
-    [shareButton setImage:heartHigh forState:UIControlStateHighlighted];
-    [shareButton addTarget:self action:@selector(tweet) forControlEvents:UIControlEventTouchUpInside];
-
-    self.navigationItem.rightBarButtonItem = [[[UIBarButtonItem alloc] initWithCustomView:shareButton] autorelease];
-}
-
 -(void)paypal {
-    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=PJPUWDWLQAJRC&lc=US&item_name=faku99%20development&item_number=Goodges&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_LG%2egif%3aNonHosted"]];
+    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"https://www.paypal.me/NoisyFlake"]];
 }
 
--(void)tweet {
-    if([SLComposeViewController isAvailableForServiceType:SLServiceTypeTwitter]) {
-        SLComposeViewController *tweetSheet = [SLComposeViewController composeViewControllerForServiceType:SLServiceTypeTwitter];
-        [tweetSheet setInitialText:@"Badges don't hurt my eyes anymore thanks to #Goodges by @faku99dev!"];
-        [self presentViewController:tweetSheet animated:YES completion:nil];
+@end
+
+@implementation GoodgesLogo
+
+- (id)initWithSpecifier:(PSSpecifier *)specifier
+{
+    self = [super initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"Banner" specifier:specifier];
+    if (self) {
+        CGFloat width = 320;
+        CGFloat height = 70;
+
+        CGRect backgroundFrame = CGRectMake(-50, -35, width+50, height);
+        background = [[UILabel alloc] initWithFrame:backgroundFrame];
+        [background layoutIfNeeded];
+        background.backgroundColor = [UIColor colorWithRed:0.35 green:0.34 blue:0.84 alpha:1.0];
+        background.autoresizingMask = (UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight);
+
+        CGRect tweakNameFrame = CGRectMake(0, -40, width, height);
+        tweakName = [[UILabel alloc] initWithFrame:tweakNameFrame];
+        [tweakName layoutIfNeeded];
+        tweakName.numberOfLines = 1;
+        tweakName.autoresizingMask = (UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight);
+        tweakName.font = [UIFont fontWithName:@"HelveticaNeue-Light" size:40.0f];
+        tweakName.textColor = [UIColor whiteColor];
+        tweakName.text = @"Goodges";
+        // tweakName.backgroundColor = [UIColor colorWithRed:0.30 green:0.85 blue:0.39 alpha:1.0];
+        tweakName.textAlignment = NSTextAlignmentCenter;
+
+        CGRect versionFrame = CGRectMake(0, -5, width, height);
+        version = [[UILabel alloc] initWithFrame:versionFrame];
+        version.numberOfLines = 1;
+        version.autoresizingMask = (UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight);
+        version.font = [UIFont fontWithName:@"HelveticaNeue-Light" size:15.0f];
+        version.textColor = [UIColor whiteColor];
+        version.text = @"Version 2.0.0";
+        version.backgroundColor = [UIColor clearColor];
+        version.textAlignment = NSTextAlignmentCenter;
+
+        [self addSubview:background];
+        [self addSubview:tweakName];
+        [self addSubview:version];
     }
+    return self;
 }
 
+- (CGFloat)preferredHeightForWidth:(CGFloat)width {
+    return 100.0f;
+}
 @end

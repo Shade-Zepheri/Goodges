@@ -1,12 +1,11 @@
-TARGET = iphone:clang:9.0:9.0
-ARCHS = armv7 armv7s arm64
+ARCHS = arm64
 
 include $(THEOS)/makefiles/common.mk
 
 BUNDLE_NAME = GoodgesPrefs
 
 GoodgesPrefs_FILES  = ../include/GGPrefsManager.m ../include/UIColor+Goodges.m
-GoodgesPrefs_FILES += GGAdvancedListController.m GGAppDetailsViewController.m GGColorPickerCell.m GGCreditsListController.m GGDeveloperCell.m GGRootListController.m
+GoodgesPrefs_FILES += GGAdvancedListController.m GGAppDetailsViewController.m GGColorPickerCell.m GGCreditsListController.m GGDeveloperCell.m GGDeveloperCellActive.m GGRootListController.m
 
 GoodgesPrefs_FRAMEWORKS = MessageUI Social UIKit
 GoodgesPrefs_PRIVATE_FRAMEWORKS = Preferences

@@ -1,8 +1,6 @@
 # Goodges
 Goodbye badges, hello labels!
 
-**Important note:** This tweak is not maintained anymore. If a developer would like to take over the project, please contact me.
-
 ### Description
 Goodges radically changes the way notifications are displayed on the homescreen.
 
@@ -11,6 +9,12 @@ But Goodges is intelligent ! It varies depending on the app : if there are two u
 Also, if the app is set so as to not display any badges, Goodges will take that into account and will not show anything.
 
 ### Changelog
+**Version 2.0.0**
+* Compatibility with iOS 11 & 12
+* Fix labels for icons that are in the dock
+* Add option to use badges for dock icons
+* Settings overhaul
+
 **Version 1.1.5**
 * Added Harbor compatibility.
 * Little bug fixes.
@@ -43,7 +47,7 @@ Also, if the app is set so as to not display any badges, Goodges will take that 
 ### Installation
 You must have [theos](https://github.com/theos/theos) installed to compile Goodges.
 Also, make sure to have *applist* and *libcolorpicker* placed in your `$THEOS/lib` folder.
-You can check my [headers repo](https://github.com/faku99/headers) for headers.
+You can check my [headers repo](https://github.com/NoisyFlake/headers) for headers (placed in `$THEOS/include`).
 
 Then, type the following in a terminal window:
 

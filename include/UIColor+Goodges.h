@@ -5,3 +5,8 @@
 + (UIColor *)inverseColor:(UIColor *)color;
 
 @end
+
+typedef struct SBIconCoordinate {
+    long long row;
+    long long col;
+} SBIconCoordinate;

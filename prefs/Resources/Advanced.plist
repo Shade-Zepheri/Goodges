@@ -16,22 +16,17 @@
             <key>cell</key>
             <string>PSButtonCell</string>
             <key>action</key>
-            <string>eraseSettings</string>
+            <string>exportSettings</string>
             <key>label</key>
-            <string>Erase all settings</string>
-        </dict>
-
-        <dict>
-            <key>cell</key>
-            <string>PSGroupCell</string>
+            <string>Export Settings</string>
         </dict>
         <dict>
             <key>cell</key>
             <string>PSButtonCell</string>
             <key>action</key>
-            <string>exportSettings</string>
+            <string>eraseSettings</string>
             <key>label</key>
-            <string>Export settings</string>
+            <string>Erase All Settings</string>
         </dict>
 
     </array>

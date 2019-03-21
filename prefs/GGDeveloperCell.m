@@ -27,7 +27,7 @@
         // Labels
         self.textLabel.text = @"faku99";
         self.detailTextLabel.text = @"@faku99dev";
-        self.detailTextLabel.textColor = [UIColor grayColor];
+        self.detailTextLabel.textColor = [UIColor colorWithRed:0.00 green:0.48 blue:1.00 alpha:1.0];
 
         // Right image
         UIImage *twitterLogo = [UIImage imageNamed:@"images/twitter" inBundle:_bundle compatibleWithTraitCollection:nil];

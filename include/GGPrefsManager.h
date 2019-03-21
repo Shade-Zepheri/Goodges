@@ -13,6 +13,7 @@
 
 #define kHideAllLabels          @"hideAllLabels"
 #define kHideBadges             @"hideBadges"
+#define kUseBadgesForDock       @"useBadgesForDock"
 
 #define kShowOnlyNumbers        @"showOnlyNumbers"
 #define kCapitalizeFirstLetter  @"capitalizeFirstLetter"
