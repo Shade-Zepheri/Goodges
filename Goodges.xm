@@ -259,13 +259,17 @@ static const GGPrefsManager *_prefs;
 }
 
 -(void)layoutSubviews {
-    // It's necessary to reload the label image every time the label is updated.
-    _UILegibilitySettings* settings = [self legibilitySettings];
+    SBIcon *icon = [self icon];
+    NSInteger badgeValue = [icon badgeValue];
+
+    // Disable legibility settings for Goodges labels (prevents iOS from darkening the label on a bright wallpaper)
+    _UILegibilitySettings* settings = badgeValue > 0 ? nil : [self legibilitySettings];
+
     SBIconLabelImageParameters *params = [self _labelImageParameters];
     SBIconLabelView *labelView = MSHookIvar<SBIconLabelView *>(self, "_labelView");
 
     if(labelView != nil) {
-
+        // It's necessary to reload the label image every time the label is updated.
         [labelView updateIconLabelWithSettings:settings imageParameters:params];
         SBIconLabelImage *labelImage = [%c(SBIconLabelImage) _drawLabelImageForParameters:params];
 
@@ -292,8 +296,7 @@ static const GGPrefsManager *_prefs;
 
     }
 
-    SBIcon *icon = [self icon];
-    NSInteger badgeValue = [icon badgeValue];
+
     BOOL allowsBadging = [[%c(SBIconController) sharedInstance] iconAllowsBadging:icon];
 
     BOOL labelHidden = [_prefs boolForKey:kHideAllLabels] && (badgeValue < 1 || !allowsBadging);
