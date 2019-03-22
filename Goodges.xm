@@ -296,16 +296,12 @@ static const GGPrefsManager *_prefs;
 
     }
 
-
     BOOL allowsBadging = [[%c(SBIconController) sharedInstance] iconAllowsBadging:icon];
 
     BOOL labelHidden = [_prefs boolForKey:kHideAllLabels] && (badgeValue < 1 || !allowsBadging);
     [self setLabelHidden:labelHidden];
 
     %orig();
-
-    // This single line fixes Harbor compatibility.
-    labelView.hidden = labelHidden;
 
     // Remove badges.
     UIView *accessoryView = MSHookIvar<UIView *>(self, "_accessoryView");
