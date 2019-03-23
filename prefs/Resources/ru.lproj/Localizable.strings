@@ -1,0 +1,20 @@
+NOTIFICATION = "Уведомление";
+NOTIFICATIONS = "Уведомления";
+
+MESSAGE = "Сообщение";
+MESSAGES = "Сообщения";
+
+MAIL = "Имейл";
+MAILS = "Имейлов";
+
+UPDATE = "Обновление";
+UPDATES = "Обновления";
+
+CALL = "Звонок";
+CALLS = "Звонка";
+
+REMINDER = "Напоминания";
+REMINDERS = "Напоминания";
+
+SNAP = "Снап";
+SNAPS = "Снапов";
