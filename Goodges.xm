@@ -41,6 +41,7 @@
 #pragma mark - Static variables
 
 static const GGPrefsManager *_prefs;
+static BOOL hasFullyLoaded = NO;
 
 #pragma mark - SpringBoard classes
 
@@ -200,8 +201,6 @@ static const GGPrefsManager *_prefs;
 
             return [NSString stringWithFormat:@"%ld %@", (long)badgeValue, appLabel];
         }
-    } else if(!self.allowsBadging && [_prefs boolForKey:kHideAllLabels]) {
-        return nil;
     }
 
     return %orig();
@@ -222,26 +221,37 @@ static const GGPrefsManager *_prefs;
 
 // Move icons in the dock up to make space for the labels
 -(CGPoint)originForIconAtCoordinate:(SBIconCoordinate)arg1 {
-    if (![_prefs boolForKey:kUseBadgesForDock]) {
-        CGPoint point = %orig;
-        CGPoint newPoint = CGPointMake(point.x, point.y - 7);
-        return newPoint;
-    } else {
-        return %orig;
+    CGPoint point = %orig;
+    NSArray *icons = [self icons];
+
+    NSUInteger count = 1;
+    for(SBIcon *icon in icons) {
+        if (count == arg1.col) {
+            // This is the icon we are currently setting the origin for
+            if (([icon badgeValue] > 0 && ![_prefs boolForKey:kUseBadgesForDock]) || [_prefs boolForKey:kShowDockLabels]) {
+                CGPoint newPoint = CGPointMake(point.x, point.y - 7);
+                return newPoint;
+            }
+        }
+
+        count++;
     }
+
+    return %orig;
 }
 
 %end    // 'SBDockIconListView' hook
 
 %hook SBIconView
 
-// Don't hide labels in the dock
+// Allow labels in the dock (might be hidden later in layoutSubviews though)
 -(void)setContentType:(unsigned long long)arg1 {
-    if (arg1 == 1 && ![_prefs boolForKey:kUseBadgesForDock]) {
+    if (arg1 == 1) {
         %orig(0);
     } else {
         %orig;
     }
+
 }
 
 // Set label parameters to what we want.
@@ -297,16 +307,45 @@ static const GGPrefsManager *_prefs;
     }
 
     BOOL allowsBadging = [[%c(SBIconController) sharedInstance] iconAllowsBadging:icon];
-
     BOOL labelHidden = [_prefs boolForKey:kHideAllLabels] && (badgeValue < 1 || !allowsBadging);
+
+    // Special label settings when it's a dock label (3 = dock; 4 = dock suggestions)
+    if ([self location] == 3 || [self location] == 4) {
+        if ([_prefs boolForKey:kShowDockLabels]) {
+            labelHidden = NO;
+        } else if (![_prefs boolForKey:kShowDockLabels] && [_prefs boolForKey:kUseBadgesForDock]) {
+            labelHidden = YES;
+        } else if (badgeValue < 1 || !allowsBadging) {
+            labelHidden = YES;
+        }
+    }
+
     [self setLabelHidden:labelHidden];
+
+    SBIconController *controller = [%c(SBIconController) sharedInstance];
+
+    // layoutIconsNow causes originForIconAtCoordinate to be called in order to raise or lower the icon if necessary
+    // However it causes a freeze or respring when called too early or when dragging icons
+    if (![_prefs boolForKey:kShowDockLabels] && ![_prefs boolForKey:kUseBadgesForDock] && hasFullyLoaded && ![controller isIconDragging]) {
+        // Execute this a bit later because otherwise opening previously unopened apps will crash the Springboard.
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1.0 * NSEC_PER_SEC), dispatch_get_main_queue(), ^(void) {
+            SBIconListView *dockView = [controller dockListView];
+            [dockView layoutIconsNow];
+
+            SBIconListView *floatingDockView = [controller floatingDockListView];
+            [floatingDockView layoutIconsNow];
+
+            SBIconListView *floatingDockSuggestionsView = [controller floatingDockSuggestionsListView];
+            [floatingDockSuggestionsView layoutIconsNow];
+        });
+    }
 
     %orig();
 
     // Remove badges.
     UIView *accessoryView = MSHookIvar<UIView *>(self, "_accessoryView");
     if(accessoryView && [accessoryView isKindOfClass:%c(SBIconBadgeView)] && [_prefs boolForKey:kHideBadges] &&
-        ([self location] != 3 || ![_prefs boolForKey:kUseBadgesForDock])) {
+        (([self location] != 3 && [self location] != 4) || ![_prefs boolForKey:kUseBadgesForDock])) {
             accessoryView.hidden = YES;
         }
 
@@ -391,6 +430,16 @@ static const GGPrefsManager *_prefs;
 }
 
 %end    // 'SBIconController' hook
+
+%hook SpringBoard
+- (void)applicationDidFinishLaunching:(id)application {
+    %orig;
+
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 5.0 * NSEC_PER_SEC), dispatch_get_main_queue(), ^(void) {
+        hasFullyLoaded = YES;
+    });
+}
+%end    // 'SpringBoard' hook
 
 
 %ctor {
