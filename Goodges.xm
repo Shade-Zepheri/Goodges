@@ -342,6 +342,9 @@ static BOOL hasFullyLoaded = NO;
 
     %orig();
 
+    // Fix compatibility with FloatingDock(Plus)
+    labelView.hidden = labelHidden;
+
     // Remove badges.
     UIView *accessoryView = MSHookIvar<UIView *>(self, "_accessoryView");
     if(accessoryView && [accessoryView isKindOfClass:%c(SBIconBadgeView)] && [_prefs boolForKey:kHideBadges] &&
