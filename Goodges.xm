@@ -87,8 +87,8 @@ static BOOL hasFullyLoaded = NO;
         }
 
         self.allowsBadging = self.icon != nil
-                             && [_prefs appIsEnabledForDisplayIdentifier:[self.icon applicationBundleID]]
-                             && [[%c(SBIconController) sharedInstance] iconAllowsBadging:icon]
+                             && [_prefs appIsEnabledForDisplayIdentifier:[self.icon applicationBundleID]]               // Cydia supports badges but has them turned off
+                             && ([[%c(SBIconController) sharedInstance] iconAllowsBadging:icon] || [[self.icon applicationBundleID] containsString:@"com.saurik.Cydia"])
                              && [self.icon badgeValue] > 0;
     }
 
@@ -306,7 +306,7 @@ static BOOL hasFullyLoaded = NO;
 
     }
 
-    BOOL allowsBadging = [[%c(SBIconController) sharedInstance] iconAllowsBadging:icon];
+    BOOL allowsBadging = [[%c(SBIconController) sharedInstance] iconAllowsBadging:icon] || [[icon applicationBundleID] containsString:@"com.saurik.Cydia"];
     BOOL labelHidden = [_prefs boolForKey:kHideAllLabels] && (badgeValue < 1 || !allowsBadging);
 
     // Special label settings when it's a dock label (3 = dock; 4 = dock suggestions)
