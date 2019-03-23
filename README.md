@@ -9,6 +9,11 @@ But Goodges is intelligent ! It varies depending on the app : if there are two u
 Also, if the app is set so as to not display any badges, Goodges will take that into account and will not show anything.
 
 ### Changelog
+**Version 2.1.1**
+* Fix FloatingDock(Plus) compatibility
+* Add Russian translation
+* Fix Spanish translation not working
+
 **Version 2.1.0**
 * Separate dock label settings, improve how Goodges are displayed in the dock
 * Add turkish translation (thanks /u/DoganYavuz)
