@@ -102,7 +102,6 @@
         tweakName.font = [UIFont fontWithName:@"HelveticaNeue-Light" size:40.0f];
         tweakName.textColor = [UIColor whiteColor];
         tweakName.text = @"Goodges";
-        // tweakName.backgroundColor = [UIColor colorWithRed:0.30 green:0.85 blue:0.39 alpha:1.0];
         tweakName.textAlignment = NSTextAlignmentCenter;
 
         CGRect versionFrame = CGRectMake(0, -5, width, height);
@@ -111,7 +110,7 @@
         version.autoresizingMask = (UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight);
         version.font = [UIFont fontWithName:@"HelveticaNeue-Light" size:15.0f];
         version.textColor = [UIColor whiteColor];
-        version.text = @"Version 2.1.0";
+        version.text = @"Version 2.1.4";
         version.backgroundColor = [UIColor clearColor];
         version.textAlignment = NSTextAlignmentCenter;
 
