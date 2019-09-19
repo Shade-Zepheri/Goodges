@@ -12,15 +12,15 @@
 
 @implementation GGAdvancedListController
 
--(NSArray *)specifiers {
-    if(_specifiers == nil) {
-        _specifiers = [[self loadSpecifiersFromPlistName:@"Advanced" target:self] retain];
+- (NSArray *)specifiers {
+    if (!_specifiers) {
+        _specifiers = [self loadSpecifiersFromPlistName:@"Advanced" target:self];
     }
 
     return _specifiers;
 }
 
--(void)eraseSettings {
+- (void)eraseSettings {
     UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"Warning!" message:@"Do you want to erase all your Goodges settings?" preferredStyle:UIAlertControllerStyleAlert];
     UIAlertAction *yesAction = [UIAlertAction actionWithTitle:@"Yes" style:UIAlertActionStyleDefault handler:^(UIAlertAction *action) {
         NSFileManager *manager = [NSFileManager defaultManager];
@@ -37,7 +37,7 @@
     [self presentViewController:alert animated:YES completion:nil];
 }
 
--(void)exportSettings {
+- (void)exportSettings {
     NSString *title = @"Goodges settings";
     NSString *message = @"To import settings into Goodges, please copy those file at the following path: \"/User/Library/Application Support/Goodges/\"";
 
@@ -50,11 +50,11 @@
     NSData *appsData = [NSData dataWithContentsOfFile:APP_SETTINGS];
     NSData *userData = [NSData dataWithContentsOfFile:USER_SETTINGS];
 
-    if(appsData == nil) {
+    if (!appsData) {
         appsData = [NSData dataWithContentsOfFile:DEFAULT_APP_SETTINGS];
     }
 
-    if(userData == nil) {
+    if (!userData) {
         userData = [NSData dataWithContentsOfFile:DEFAULT_USER_SETTINGS];
     }
 
@@ -64,7 +64,7 @@
     [self presentViewController:vc animated:YES completion:nil];
 }
 
--(void)mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error {
+- (void)mailComposeController:(MFMailComposeViewController *)controller didFinishWithResult:(MFMailComposeResult)result error:(NSError *)error {
     [self dismissViewControllerAnimated:YES completion:nil];
 }
 

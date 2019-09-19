@@ -12,11 +12,11 @@
 
 @implementation GGRootListController
 
--(instancetype)init {
+- (instancetype)init {
     self = [super init];
 
-    if(self) {
-        _prefs = [NSClassFromString(@"GGPrefsManager") sharedManager];
+    if (self) {
+        _prefs = [GGPrefsManager sharedManager];
 
         UIBarButtonItem *applyButton = [[UIBarButtonItem alloc] initWithTitle:@"Respring" style:UIBarButtonItemStylePlain target:self action:@selector(respring)];
         self.navigationItem.rightBarButtonItem = applyButton;
@@ -25,30 +25,30 @@
     return self;
 }
 
--(NSArray *)specifiers {
+- (NSArray *)specifiers {
 	if (!_specifiers) {
-		_specifiers = [[self loadSpecifiersFromPlistName:@"Root" target:self] retain];
+		_specifiers = [self loadSpecifiersFromPlistName:@"Root" target:self];
 	}
 
 	return _specifiers;
 }
 
--(void)respring {
+- (void)respring {
     pid_t pid;
     const char* args[] = {"killall", "-9", "backboardd", NULL};
     posix_spawn(&pid, "/usr/bin/killall", NULL, NULL, (char* const*)args, NULL);
 }
 
--(id)readPreferenceValue:(PSSpecifier *)specifier {
+- (id)readPreferenceValue:(PSSpecifier *)specifier {
     return [_prefs valueForKey:[specifier propertyForKey:@"key"]] ?: [specifier propertyForKey:@"default"];
 }
 
--(void)setPreferenceValue:(id)value specifier:(PSSpecifier *)specifier {
+- (void)setPreferenceValue:(id)value specifier:(PSSpecifier *)specifier {
     [_prefs setValue:value forKey:[specifier propertyForKey:@"key"]];
 }
 
--(void)setLabelsUseCB:(id)value specifier:(PSSpecifier *)specifier {
-    if([value boolValue]) {
+- (void)setLabelsUseCB:(id)value specifier:(PSSpecifier *)specifier {
+    if ([value boolValue]) {
         [_prefs setValue:@(NO) forKey:kHighlightUseCB];
     }
 
@@ -57,8 +57,8 @@
     [self reloadSpecifierID:@"highlightUseCBSpec" animated:YES];
 }
 
--(void)setHighlightUseCB:(id)value specifier:(PSSpecifier *)specifier {
-    if([value boolValue]) {
+- (void)setHighlightUseCB:(id)value specifier:(PSSpecifier *)specifier {
+    if ([value boolValue]) {
         [_prefs setValue:@(NO) forKey:kLabelsUseCB];
     }
 
@@ -67,22 +67,23 @@
     [self reloadSpecifierID:@"labelsUseCBSpec" animated:YES];
 }
 
--(void)_returnKeyPressed:(UIKeyboard *)keyboard {
+/*
+- (void)_returnKeyPressed:(UIKeyboard *)keyboard {
     [self.view endEditing:YES];
 
     [super _returnKeyPressed:keyboard];
 }
+*/
 
--(void)paypal {
-    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"https://www.paypal.me/NoisyFlake"]];
+- (void)paypal {
+    // [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"https://www.paypal.me/NoisyFlake"]];
 }
 
 @end
 
 @implementation GoodgesLogo
 
-- (id)initWithSpecifier:(PSSpecifier *)specifier
-{
+- (instancetype)initWithSpecifier:(PSSpecifier *)specifier {
     self = [super initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"Banner" specifier:specifier];
     if (self) {
         CGFloat width = 320;
@@ -118,10 +119,12 @@
         [self addSubview:tweakName];
         [self addSubview:version];
     }
+
     return self;
 }
 
 - (CGFloat)preferredHeightForWidth:(CGFloat)width {
-    return 100.0f;
+    return 100.0;
 }
+
 @end

@@ -7,9 +7,9 @@
 
 @implementation GGCreditsListController
 
--(NSArray *)specifiers {
-    if(_specifiers == nil) {
-        _specifiers = [[self loadSpecifiersFromPlistName:@"Credits" target:self] retain];
+- (NSArray *)specifiers {
+    if (!_specifiers) {
+        _specifiers = [self loadSpecifiersFromPlistName:@"Credits" target:self];
     }
 
     return _specifiers;

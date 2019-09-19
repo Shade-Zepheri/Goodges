@@ -1,20 +1,13 @@
-ARCHS = arm64
-
 include $(THEOS)/makefiles/common.mk
 
 BUNDLE_NAME = GoodgesPrefs
-
-GoodgesPrefs_FILES  = ../include/GGPrefsManager.m ../include/UIColor+Goodges.m
-GoodgesPrefs_FILES += GGAdvancedListController.m GGAppDetailsViewController.m GGColorPickerCell.m GGCreditsListController.m GGDeveloperCell.m GGDeveloperCellActive.m GGRootListController.m
-
-GoodgesPrefs_FRAMEWORKS = MessageUI Social UIKit
-GoodgesPrefs_PRIVATE_FRAMEWORKS = Preferences
-
-GoodgesPrefs_LIBRARIES = colorpicker applist
-
-GoodgesPrefs_INSTALL_PATH = /Library/PreferenceBundles
-
-GoodgesPrefs_CFLAGS += -I../include -Wno-deprecated-declarations
+$(BUNDLE_NAME)_FILES = ../include/GGPrefsManager.m ../include/UIColor+Goodges.m
+$(BUNDLE_NAME)_FILES += $(wildcard *.m)
+$(BUNDLE_NAME)_FRAMEWORKS = MessageUI Social UIKit
+$(BUNDLE_NAME)_LIBRARIES = colorpicker applist
+$(BUNDLE_NAME)_INSTALL_PATH = /Library/PreferenceBundles
+$(BUNDLE_NAME)_CFLAGS += -I../include
+$(BUNDLE_NAME)_LDFLAGS = Preferences.tbd
 
 include $(THEOS_MAKE_PATH)/bundle.mk
 

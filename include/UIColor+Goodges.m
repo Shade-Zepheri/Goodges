@@ -3,7 +3,7 @@
 @implementation UIColor (Goodges)
 
 // http://stackoverflow.com/a/12397366/3238070
-+(UIColor *)RGBAColorFromHexString:(NSString *)string {
++ (UIColor *)RGBAColorFromHexString:(NSString *)string {
     if(string.length == 0) {
         return [UIColor blackColor];
     }
@@ -28,13 +28,10 @@
 
     [scanner scanHexInt:&rgbValue];
 
-    return [UIColor colorWithRed:((rgbValue & 0xFF0000) >> 16) / 255.0
-                    green:((rgbValue & 0xFF00) >> 8) / 255.0
-                    blue:(rgbValue & 0xFF) / 255.0
-                    alpha:alpha];
+    return [UIColor colorWithRed:((rgbValue & 0xFF0000) >> 16) / 255.0 green:((rgbValue & 0xFF00) >> 8) / 255.0 blue:(rgbValue & 0xFF) / 255.0 alpha:alpha];
 }
 
-+(NSString *)hexStringFromColor:(UIColor *)color {
++ (NSString *)hexStringFromColor:(UIColor *)color {
     const CGFloat *components = CGColorGetComponents(color.CGColor);
 
     CGFloat r = components[0];
@@ -44,7 +41,7 @@
     return [NSString stringWithFormat:@"#%02X%02X%02X", (int)(r * 255), (int)(g * 255), (int)(b * 255)];
 }
 
-+(UIColor *)inverseColor:(UIColor *)color {
++ (UIColor *)inverseColor:(UIColor *)color {
     CGFloat r, g, b, a;
 
     [color getRed:&r green:&g blue:&b alpha:&a];

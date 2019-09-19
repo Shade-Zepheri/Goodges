@@ -17,10 +17,9 @@
 
 @implementation GGDeveloperCell
 
--(instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier specifier:(PSSpecifier *)specifier {
+- (instancetype)initWithStyle:(UITableViewCellStyle)style reuseIdentifier:(NSString *)reuseIdentifier specifier:(PSSpecifier *)specifier {
     self = [super initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:reuseIdentifier specifier:specifier];
-
-    if(self) {
+    if (self) {
         _bundle = [NSBundle bundleWithPath:BUNDLE_PATH];
         [_bundle load];
 
@@ -31,7 +30,7 @@
 
         // Right image
         UIImage *twitterLogo = [UIImage imageNamed:@"images/twitter" inBundle:_bundle compatibleWithTraitCollection:nil];
-        self.accessoryView = [[[UIImageView alloc] initWithImage:twitterLogo] autorelease];
+        self.accessoryView = [[UIImageView alloc] initWithImage:twitterLogo];
 
         [specifier setTarget:self];
         [specifier setButtonAction:@selector(openTwitter)];
@@ -40,7 +39,8 @@
     return self;
 }
 
--(void)openTwitter {
+- (void)openTwitter {
+/*
     if ([[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:@"tweetbot:"]]) {
         [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"tweetbot:///user_profile/faku99dev"]];
     } else if ([[UIApplication sharedApplication] canOpenURL:[NSURL URLWithString:@"twitterrific:"]]) {
@@ -50,6 +50,7 @@
     } else {
         [[UIApplication sharedApplication] openURL:[NSURL URLWithString:@"http://www.twitter.com/faku99dev"]];
     }
+*/
 }
 
 @end
