@@ -59,11 +59,11 @@ static BOOL hasFullyLoaded = NO;
 
 @interface GGIconLabelImageParameters : SBIconLabelImageParameters
 
-@property (nonatomic, assign) BOOL allowsBadging;
-@property (nonatomic, retain) SBFolderIcon *folderIcon;
-@property (nonatomic, retain) SBApplicationIcon *icon;
+@property (assign, nonatomic) BOOL allowsBadging;
+@property (strong, nonatomic) SBFolderIcon *folderIcon;
+@property (strong, nonatomic) SBApplicationIcon *icon;
 
-- (instancetype)initWithParameters:(SBIconLabelImageParameters *)params icon:(SBIcon *)icon;
+- (instancetype)initWithParameters:(SBIconLabelImageParameters *)parameters icon:(SBIcon *)icon;
 
 - (SBApplicationIcon *)mainIconForFolder:(SBIcon *)folderIcon;
 
@@ -79,8 +79,8 @@ static BOOL hasFullyLoaded = NO;
 %property (nonatomic, retain) SBApplicationIcon *icon;
 
 %new
-- (instancetype)initWithParameters:(SBIconLabelImageParameters *)params icon:(SBIcon *)icon {
-    self = [self initWithParameters:params];
+- (instancetype)initWithParameters:(SBIconLabelImageParameters *)parameters icon:(SBIcon *)icon {
+    self = [self initWithParameters:parameters];
     if (self) {
         if ([icon isFolderIcon]) {
             self.folderIcon = (SBFolderIcon *)icon;
@@ -89,10 +89,7 @@ static BOOL hasFullyLoaded = NO;
             self.icon = (SBApplicationIcon *)icon;
         }
 
-        self.allowsBadging = self.icon != nil
-                             && [_prefs appIsEnabledForDisplayIdentifier:[self.icon applicationBundleID]]               // Cydia supports badges but has them turned off
-                             && ([[%c(SBIconController) sharedInstance] iconAllowsBadging:icon] || [[self.icon applicationBundleID] containsString:@"com.saurik.Cydia"])
-                             && [self.icon badgeValue] > 0;
+        self.allowsBadging = self.icon != nil && [_prefs appIsEnabledForDisplayIdentifier:[self.icon applicationBundleID]] && [[%c(SBIconController) sharedInstance] iconAllowsBadging:icon] && [self.icon badgeValue] > 0;
     }
 
     return self;
@@ -137,9 +134,9 @@ static BOOL hasFullyLoaded = NO;
         if ([_prefs boolForKey:kLabelsUseCB]) {
             int color = [[%c(ColorBadges) sharedInstance] colorForIcon:self.icon];
 
-                return [UIColor RGBAColorFromHexString:[NSString stringWithFormat:@"#0x%0X", color]];
+            return [UIColor RGBAColorFromHexString:[NSString stringWithFormat:@"#0x%0X", color]];
         } else if ([_prefs boolForKey:kInverseColor]) {
-            UIColor *color = [self focusHighlightColor];
+            UIColor *color = self.focusHighlightColor;
 
             return [UIColor inverseColor:color];
         }
@@ -196,7 +193,7 @@ static BOOL hasFullyLoaded = NO;
             }
 
             if ([_prefs boolForKey:kCapitalizeFirstLetter]) {
-                appLabel = [NSString stringWithFormat:@"%@%@", [[appLabel substringToIndex:1] uppercaseString], [appLabel substringFromIndex:1]];
+                appLabel = [NSString stringWithFormat:@"%@%@", [appLabel substringToIndex:1].uppercaseString, [appLabel substringFromIndex:1]];
             }
 
             return [NSString stringWithFormat:@"%ld %@", (long)badgeValue, appLabel];
@@ -258,7 +255,7 @@ static BOOL hasFullyLoaded = NO;
 - (SBIconLabelImageParameters *)_labelImageParameters {
     SBIconLabelImageParameters *params = %orig;
 
-    SBIcon *icon = [self icon];
+    SBIcon *icon = self.icon;
 
     // We check that the parameters are not nil.
     if (params) {
@@ -269,7 +266,7 @@ static BOOL hasFullyLoaded = NO;
 }
 
 - (void)layoutSubviews {
-    SBIcon *icon = [self icon];
+    SBIcon *icon = self.icon;
     NSInteger badgeValue = [icon badgeValue];
 
     // Disable legibility settings for Goodges labels (prevents iOS from darkening the label on a bright wallpaper)
@@ -293,12 +290,12 @@ static BOOL hasFullyLoaded = NO;
             // [labelView.imageView setFrame:frame];
         } else if ([labelView isKindOfClass:%c(SBIconSimpleLabelView)]) {
             // SBIconSimpleLabelView (used for Dock Icons) is already a UIImageView, so no need to get imageView
-            [labelView setImage:labelImage];
+            labelView.image = labelImage;
 
             CGRect frame = labelView.frame;
             frame.size = labelImage.size;
 
-            [labelView setFrame:frame];
+            labelView.frame = frame;
         } else {
             // Should only happen in future iOS versions if Apple changes the SBIconLabelView again
             HBLogWarn(@"Unable to update icon label: unsupported SBIconLabelView class detected");
@@ -306,7 +303,7 @@ static BOOL hasFullyLoaded = NO;
 
     }
 
-    BOOL allowsBadging = [[%c(SBIconController) sharedInstance] iconAllowsBadging:icon] || [[icon applicationBundleID] containsString:@"com.saurik.Cydia"];
+    BOOL allowsBadging = [[%c(SBIconController) sharedInstance] iconAllowsBadging:icon];
     BOOL labelHidden = [_prefs boolForKey:kHideAllLabels] && (badgeValue < 1 || !allowsBadging);
 
     // Special label settings when it's a dock label (3 = dock; 4 = dock suggestions)
@@ -332,10 +329,10 @@ static BOOL hasFullyLoaded = NO;
             SBDockIconListView *dockView = controller.dockListView;
             [dockView layoutIconsNow];
 
-            SBIconListView *floatingDockView = [controller floatingDockListView];
+            SBIconListView *floatingDockView = controller.floatingDockListView;
             [floatingDockView layoutIconsNow];
 
-            SBIconListView *floatingDockSuggestionsView = [controller floatingDockSuggestionsListView];
+            SBIconListView *floatingDockSuggestionsView = controller.floatingDockSuggestionsListView;
             [floatingDockSuggestionsView layoutIconsNow];
         });
     }
@@ -347,8 +344,7 @@ static BOOL hasFullyLoaded = NO;
 
     // Remove badges.
     UIView *accessoryView = [self valueForKey:@"_accessoryView"];
-    if (accessoryView && [accessoryView isKindOfClass:%c(SBIconBadgeView)] && [_prefs boolForKey:kHideBadges] &&
-        (([self location] != 3 && [self location] != 4) || ![_prefs boolForKey:kUseBadgesForDock])) {
+    if (accessoryView && [accessoryView isKindOfClass:%c(SBIconBadgeView)] && [_prefs boolForKey:kHideBadges] && ((self.location != 3 && self.location != 4) || ![_prefs boolForKey:kUseBadgesForDock])) {
             accessoryView.hidden = YES;
         }
 
@@ -360,16 +356,18 @@ static BOOL hasFullyLoaded = NO;
         if (allowsBadging && badgeValue > 0 && [_prefs appIsEnabledForDisplayIdentifier:[self.icon applicationBundleID]] && !crossfadeView) {
             [self shakeIcon];
         } else {
-            [[self layer] removeAllAnimations];
+            [self.layer removeAllAnimations];
         }
     }
 }
 
 %new
 - (void)shakeIcon {
-    if (![[self.layer animationKeys] containsObject:@"SBIconPosition"]) {
-        [self.layer addAnimation:[%c(SBIconView) _jitterRotationAnimation] forKey:@"SBIconPosition"];
+    if ([[self.layer animationKeys] containsObject:@"SBIconPosition"]) {
+        return;
     }
+
+    [self.layer addAnimation:[%c(SBIconView) _jitterRotationAnimation] forKey:@"SBIconPosition"];
 }
 
 // Remove update dot for better display if labels are hidden.
@@ -382,7 +380,7 @@ static BOOL hasFullyLoaded = NO;
 }
 
 - (void)_updateLabel {
-    SBIcon *icon = [self icon];
+    SBIcon *icon = self.icon;
     NSInteger badgeValue = [icon badgeValue];
     BOOL allowsBadging = [[%c(SBIconController) sharedInstance] iconAllowsBadging:icon] && badgeValue > 0;
 
@@ -407,7 +405,7 @@ static BOOL hasFullyLoaded = NO;
 - (void)removeAllIconAnimations {
     SBRootIconListView *rootView = [self currentRootIconList];
     NSArray *icons = [rootView icons];
-    SBIconViewMap *map = [rootView viewMap];
+    SBIconViewMap *map = rootView.viewMap;
 
     for (SBIcon *icon in icons) {
         if ([self iconAllowsBadging:icon] && [icon badgeValue] > 0 && [_prefs boolForKey:kEnableShaking]) {
@@ -418,9 +416,9 @@ static BOOL hasFullyLoaded = NO;
         [iconView removeAllIconAnimations];
     }
 
-    SBIconListView *dockView = [self dockListView];
+    SBIconListView *dockView = self.dockListView;
     icons = [dockView icons];
-    map = [dockView viewMap];
+    map = dockView.viewMap;
 
     for (SBIcon *icon in icons) {
         if ([self iconAllowsBadging:icon] && [icon badgeValue] > 0 && [_prefs boolForKey:kEnableShaking]) {
