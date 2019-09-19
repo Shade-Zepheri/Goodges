@@ -280,7 +280,7 @@ static BOOL hasFullyLoaded = NO;
     _UILegibilitySettings *settings = badgeValue > 0 ? nil : self.legibilitySettings;
 
     SBIconLabelImageParameters *params = [self _labelImageParameters];
-    UIView<SBIconLabelView> *labelView = MSHookIvar<UIView<SBIconLabelView> *>(self, "_labelView");
+    UIView<SBIconLabelView> *labelView = [self valueForKey:@"_labelView"];
 
     if (labelView) {
         // It's necessary to reload the label image every time the label is updated.
@@ -350,7 +350,7 @@ static BOOL hasFullyLoaded = NO;
     labelView.hidden = labelHidden;
 
     // Remove badges.
-    UIView *accessoryView = MSHookIvar<UIView *>(self, "_accessoryView");
+    UIView *accessoryView = [self valueForKey:@"_accessoryView"];
     if (accessoryView && [accessoryView isKindOfClass:%c(SBIconBadgeView)] && [_prefs boolForKey:kHideBadges] &&
         (([self location] != 3 && [self location] != 4) || ![_prefs boolForKey:kUseBadgesForDock])) {
             accessoryView.hidden = YES;
@@ -359,7 +359,7 @@ static BOOL hasFullyLoaded = NO;
     if ([_prefs boolForKey:kEnableShaking]) {
         // Crossfade view is not nil when the application is launching. If shaking icons is enabled,
         // we must remove the animations before the launch or it will create animations issues.
-        UIView *crossfadeView = MSHookIvar<UIView *>(self, "_crossfadeView");
+        UIView *crossfadeView = [self valueForKey:@"_crossfadeView"];
 
         if (allowsBadging && badgeValue > 0 && [_prefs appIsEnabledForDisplayIdentifier:[self.icon applicationBundleID]] && !crossfadeView) {
             [self shakeIcon];

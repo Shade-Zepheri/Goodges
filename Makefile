@@ -13,7 +13,7 @@ include $(THEOS)/makefiles/common.mk
 
 TWEAK_NAME = Goodges
 Goodges_FILES = include/GGPrefsManager.m include/UIColor+Goodges.m
-Goodges_FILES += Goodges.xm
+Goodges_FILES += Goodges.x
 Goodges_FRAMEWORKS = UIKit CoreGraphics Foundation QuartzCore
 Goodges_CFLAGS = -Iinclude/ -IHeaders/
 Goodges_LIBRARIES = colorpicker applist
