@@ -18,7 +18,7 @@ Goodges_FRAMEWORKS = UIKit CoreGraphics Foundation QuartzCore
 Goodges_CFLAGS = -Iinclude/ -IHeaders/
 Goodges_LIBRARIES = colorpicker applist
 
-SUBPROJECTS = prefs
+SUBPROJECTS = Settings
 
 include $(THEOS_MAKE_PATH)/tweak.mk
 include $(THEOS_MAKE_PATH)/aggregate.mk
