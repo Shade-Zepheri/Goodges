@@ -2,11 +2,11 @@
 
 @interface GGPrefsManager ()
 
-@property (nonatomic, retain) NSDictionary *appSettings;
-@property (nonatomic, retain) NSBundle *bundle;
-@property (nonatomic, retain) NSDictionary *defaultAppSettings;
-@property (nonatomic, retain) NSDictionary *defaultUserSettings;
-@property (nonatomic, retain) NSDictionary *userSettings;
+@property (nonatomic, strong) NSDictionary *appSettings;
+@property (nonatomic, strong) NSBundle *bundle;
+@property (nonatomic, strong) NSDictionary *defaultAppSettings;
+@property (nonatomic, strong) NSDictionary *defaultUserSettings;
+@property (nonatomic, strong) NSDictionary *userSettings;
 
 @end
 

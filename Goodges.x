@@ -137,12 +137,7 @@ static BOOL hasFullyLoaded = NO;
         if ([_prefs boolForKey:kLabelsUseCB]) {
             int color = [[%c(ColorBadges) sharedInstance] colorForIcon:self.icon];
 
-            if ([_prefs boolForKey:kHighlightUseCB]) {
-                // Have CB determine if black or white
-                return ([%c(ColorBadges) isDarkColor:color]) ? [UIColor whiteColor] : [UIColor blackColor];
-            } else {
                 return [UIColor RGBAColorFromHexString:[NSString stringWithFormat:@"#0x%0X", color]];
-            }
         } else if ([_prefs boolForKey:kInverseColor]) {
             UIColor *color = [self focusHighlightColor];
 
@@ -153,11 +148,7 @@ static BOOL hasFullyLoaded = NO;
     } else if (self.allowsBadging && [_prefs boolForKey:kEnableHighlight] && [_prefs boolForKey:kHighlightUseCB]) {
         int color = [[%c(ColorBadges) sharedInstance] colorForIcon:self.icon];
 
-        if ([%c(ColorBadges) isDarkColor:color]) {
-            return [UIColor whiteColor];
-        } else {
-            return [UIColor blackColor];
-        }
+        return ([%c(ColorBadges) isDarkColor:color]) ? [UIColor whiteColor] : [UIColor blackColor];
     }
 
     return %orig;
