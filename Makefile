@@ -1,7 +1,11 @@
 export TARGET = iphone:latest:12.0
 export ARCHS = arm64e
 
-INSTALL_TARGET_PROCESSES = SpringBoard
+INSTALL_TARGET_PROCESSES = Preferences
+
+ifneq ($(RESPRING),0)
+	INSTALL_TARGET_PROCESSES += SpringBoard
+endif
 
 export ADDITIONAL_CFLAGS = -fobjc-arc
 
