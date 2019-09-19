@@ -137,7 +137,12 @@ static BOOL hasFullyLoaded = NO;
         if ([_prefs boolForKey:kLabelsUseCB]) {
             int color = [[%c(ColorBadges) sharedInstance] colorForIcon:self.icon];
 
-            return [UIColor RGBAColorFromHexString:[NSString stringWithFormat:@"#0x%0X", color]];
+            if ([_prefs boolForKey:kHighlightUseCB]) {
+                // Have CB determine if black or white
+                return ([%c(ColorBadges) isDarkColor:color]) ? [UIColor whiteColor] : [UIColor blackColor];
+            } else {
+                return [UIColor RGBAColorFromHexString:[NSString stringWithFormat:@"#0x%0X", color]];
+            }
         } else if ([_prefs boolForKey:kInverseColor]) {
             UIColor *color = [self focusHighlightColor];
 

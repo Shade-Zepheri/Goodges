@@ -48,9 +48,11 @@
 }
 
 - (void)setLabelsUseCB:(id)value specifier:(PSSpecifier *)specifier {
+/*
     if ([value boolValue]) {
         [_prefs setValue:@(NO) forKey:kHighlightUseCB];
     }
+*/
 
     [self setPreferenceValue:value specifier:specifier];
 
@@ -58,9 +60,11 @@
 }
 
 - (void)setHighlightUseCB:(id)value specifier:(PSSpecifier *)specifier {
+/*
     if ([value boolValue]) {
         [_prefs setValue:@(NO) forKey:kLabelsUseCB];
     }
+*/
 
     [self setPreferenceValue:value specifier:specifier];
 
